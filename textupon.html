@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StumbleUpon Retrospective</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a clean, modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevents scrollbars on the main page */
+        }
+        /* Style for the iframe to fill the space below the top bar */
+        #content-frame {
+            height: calc(100vh - 64px); /* Full viewport height minus the top bar's height */
+        }
+        /* A subtle transition for button feedback */
+        .btn-feedback {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-feedback:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-slate-200">
+
+    <!-- 
+        TOP MENU (NAVIGATION BAR)
+        This is the main control center for the StumbleUpon experience.
+        It's fixed to the top of the screen and contains all user interaction elements.
+        Using flexbox for easy alignment and responsiveness.
+    -->
+    <header id="top-bar" class="bg-slate-800 text-white shadow-lg fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4 md:px-6">
+        <div class="container mx-auto flex items-center justify-between">
+            
+            <!-- Left Section: Logo & Main Action Buttons -->
+            <div class="flex items-center space-x-4">
+                <!-- USER ACTION: Your logo would go here. -->
+                <!-- For now, it's a simple text-based logo. -->
+                <div class="text-xl font-bold text-orange-400">
+                    KoralAi Stumble
+                </div>
+
+                <!--
+                    THE CORE "STUMBLE" BUTTON
+                    This is the primary call to action. Clicking it will load a new, random site.
+                    It's styled to be prominent.
+                -->
+                <button id="stumble-btn" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg btn-feedback">
+                    Stumble!
+                </button>
+            </div>
+
+            <!-- Middle Section: Voting / Feedback Controls -->
+            <div class="flex items-center space-x-2">
+                <!--
+                    VOTING BUTTONS (Like/Dislike)
+                    These provide the core feedback loop. In a real app, this would send a vote
+                    to the backend to tailor future stumbles. Here, it provides visual feedback.
+                -->
+                <button id="like-btn" class="p-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 btn-feedback" aria-label="Like this page">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.562 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
+                </button>
+                <button id="dislike-btn" class="p-2 rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 btn-feedback" aria-label="Dislike this page">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.106-1.79l-.05-.025A4 4 0 0011.057 2H5.642a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.438 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l2.4-2.867a4 4 0 00.8-2.4z"></path></svg>
+                </button>
+            </div>
+
+            <!-- Right Section: User Profile & Options -->
+            <div class="flex items-center space-x-4">
+                <!--
+                    USER PROFILE DROPDOWN
+                    In a real app, this would show the logged-in user's info.
+                    Here it's a static placeholder.
+                -->
+                <div class="relative">
+                    <button class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center overflow-hidden">
+                        <!-- USER ACTION: Replace with user's profile picture -->
+                        <!-- A generic SVG icon is used as a placeholder. -->
+                        <svg class="w-6 h-6 text-slate-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- Missing/Inadequate Code: A real dropdown menu with options like 'Profile', 'Settings', 'Logout' would be implemented here with JavaScript. -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 
+        MAIN CONTENT AREA
+        This iframe will display the stumbled-upon websites.
+        It's positioned to take up all the space below the top bar.
+    -->
+    <main class="pt-16"> <!-- pt-16 (padding-top: 4rem/64px) pushes content below the fixed header -->
+        <iframe id="content-frame" class="w-full border-0" src="about:blank" title="Stumbled Content"></iframe>
+    </main>
+
+    <script>
+        // --- DATA ---
+        // A sample list of websites to "stumble" upon.
+        // In a real application, this list would be fetched from a backend server
+        // based on the user's interests and voting history.
+        const stumbleSites = [
+            'https://www.wikipedia.org/',
+            'https://www.nasa.gov/',
+            'https://archive.org/',
+            'https://www.smithsonianmag.com/',
+            'https://artsandculture.google.com/',
+            'https://www.ted.com/',
+            'https://www.instructables.com/',
+            'https://www.gutenberg.org/'
+        ];
+
+        let currentSite = '';
+
+        // --- DOM ELEMENTS ---
+        const stumbleBtn = document.getElementById('stumble-btn');
+        const likeBtn = document.getElementById('like-btn');
+        const dislikeBtn = document.getElementById('dislike-btn');
+        const contentFrame = document.getElementById('content-frame');
+
+        // --- FUNCTIONS ---
+        
+        /**
+         * Selects a random website from the stumbleSites array and loads it into the iframe.
+         * Ensures the new site is different from the current one.
+         */
+        function stumbleToNewSite() {
+            let newSite;
+            // Loop to ensure we don't stumble upon the same site twice in a row.
+            do {
+                const randomIndex = Math.floor(Math.random() * stumbleSites.length);
+                newSite = stumbleSites[randomIndex];
+            } while (newSite === currentSite && stumbleSites.length > 1);
+            
+            currentSite = newSite;
+            console.log(`Stumbling to: ${currentSite}`);
+
+            // Update the iframe's source to load the new page
+            // NOTE: Some websites may block being loaded in an iframe via X-Frame-Options headers.
+            // This is a browser security feature, not a code error.
+            contentFrame.src = currentSite;
+
+            // Reset visual feedback on voting buttons
+            likeBtn.classList.remove('bg-green-600');
+            dislikeBtn.classList.remove('bg-red-600');
+        }
+
+        /**
+         * Handles the "like" action.
+         */
+        function handleLike() {
+            if (!currentSite) return;
+            console.log(`User LIKED: ${currentSite}`);
+            
+            // --- Missing/Inadequate Code ---
+            // A real application would send this feedback to the backend, e.g.:
+            // fetch('/api/vote', { 
+            //     method: 'POST', 
+            //     body: JSON.stringify({ url: currentSite, vote: 'like' }) 
+            // });
+            // ---
+
+            // Provide visual feedback
+            likeBtn.classList.add('bg-green-600');
+            dislikeBtn.classList.remove('bg-red-600');
+        }
+
+        /**
+         * Handles the "dislike" action.
+         */
+        function handleDislike() {
+            if (!currentSite) return;
+            console.log(`User DISLIKED: ${currentSite}`);
+            
+            // --- Missing/Inadequate Code ---
+            // A real application would send this feedback to the backend, e.g.:
+            // fetch('/api/vote', { 
+            //     method: 'POST', 
+            //     body: JSON.stringify({ url: currentSite, vote: 'dislike' }) 
+            // });
+            // ---
+
+            // Provide visual feedback
+            dislikeBtn.classList.add('bg-red-600');
+            likeBtn.classList.remove('bg-green-600');
+        }
+
+
+        // --- EVENT LISTENERS ---
+        stumbleBtn.addEventListener('click', stumbleToNewSite);
+        likeBtn.addEventListener('click', handleLike);
+        dislikeBtn.addEventListener('click', handleDislike);
+
+        // --- INITIALIZATION ---
+        // Load the first site when the page loads to start the experience.
+        stumbleToNewSite();
+    </script>
+
+</body>
+</html>
