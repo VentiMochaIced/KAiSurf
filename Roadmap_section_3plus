@@ -1,0 +1,82 @@
+Koralai/KAiSurf v2.0+ "KinetiK Kontent" - Module Enhancement Plan
+1. Core Vision & Design Goal
+This document outlines the development roadmap for evolving the Koralai/KAiSurf suite from a private browsing tool into a collaborative online platform. The central goal is to create "KinetiK Kontent": live, shared "surfing environments" where users interact with curated web content in real-time.
+The business model will leverage the existing affiliate system to drive adoption of premium collaborative features, with user engagement incentivized through a rewards system ("Kones").
+2. Phase 1: The Cloud Foundation (App Version 1.1)
+This phase focuses on connecting the local browser to the cloud backend, laying the groundwork for social features with a minimal-storage approach.
+Module: Cloud Profile & Settings UI
+Description: A new, persistent UI element at the top of the Koralai Browser to manage the user's online identity and sharing preferences.
+Frontend Requirements (Koralai Browser):
+Implement a new toolbar or panel to display the user's login status (verified via the backend API).
+Create a settings modal accessible from this UI for managing profile data (email, affiliate code).
+Develop "Content Relay" settings, allowing users to define rules for what content is shared and with whom.
+Backend Requirements (KAiSurf Server):
+Create new API endpoints (GET /user/profile, POST /user/profile) to manage lightweight user data.
+Module: Basic Content Relay
+Description: The initial implementation of sharing a URL to a cloud-based "environment." This will conform to the "minimal content return" goal, storing only metadata.
+Frontend Requirements (Koralai Browser):
+The browser's "bookmark" function will be updated. When logged in, it will send the URL and basic metadata (title, user notes) to the backend.
+Backend Requirements (KAiSurf Server):
+The backend will receive and store this data as lightweight JSON within the user's profile or a related table. This avoids heavy database schemas initially (meeting the non-db storage met v1.0.1 criteria).
+3. Phase 2: Collaboration & Monetization (App Version 2.0)
+This is a major upgrade requiring significant backend changes (db upgrade version 3.+). It introduces the core social and rewards features.
+Module: Live Communications Addon ("Multi-connect")
+Description: A real-time chat and communication layer within each shared environment, forming the core of the collaborative experience.
+Frontend Requirements (Koralai Browser):
+Integrate a WebSocket client to establish a persistent connection with the server.
+Develop a chat UI panel that displays messages and user activity within the active environment.
+Backend Requirements (KAiSurf Server):
+Implement a WebSocket server to manage real-time connections and message broadcasting.
+Requires a major DB schema upgrade to include tables for chat messages, channels/environments, and user permissions.
+Module: "Kones" Rewards System
+Description: An in-app currency and rewards system to incentivize user interaction and affiliate-driven growth.
+Frontend Requirements (Koralai Browser):
+Add a UI element in the Cloud Profile to display the user's "Kones" balance.
+Backend Requirements (KAiSurf Server):
+Requires a DB schema upgrade to add a user wallet or ledger table for tracking "Kones."
+Develop the business logic for awarding/transacting "Kones" based on defined activities (e.g., content sharing, affiliate sign-ups, daily logins).
+Module: Upvote & Interaction System
+Description: A secondary, lightweight social feedback mechanism to gauge content value within an environment.
+Frontend Requirements (Koralai Browser):
+Add an "upvote" (tick) button next to each URL shared in an environment.
+Backend Requirements (KAiSurf Server):
+Add a new database table to track user interactions (likes/upvotes) per content item.
+4. Phase 3: Future Vision (App Version 3.0+)
+This phase explores the long-term, conceptual goals of the platform, positioning it for future technological trends.
+Module: "Koralcity" Metaverse Integration
+Description: The conceptual framework for a geo-graphical, 3D metaverse experience built around shared "KinetiK Kontent."
+Requirements (Primarily Backend/API):
+Define a standardized API data structure for exporting "environments" (URLs, notes, chat logs) to a 3D rendering engine.
+Research and develop prototypes using WebGL/Three.js or APIs for existing metaverse platforms.
+Investigate geo-broadcasting to allow users to discover public content environments based on physical location, creating a "digital twin" of shared knowledge.
+5. Summary of Derived Requirements
+Feature/Module
+Frontend (Koralai) Requirements
+Backend (KAiSurf) Requirements
+Target Version
+Cloud Profile
+New toolbar, settings modal, API calls
+New API endpoints for user profile data
+v1.1
+Content Relay
+Update bookmark function to send URL/metadata
+Store shared content as lightweight JSON
+v1.1
+Live Chat
+WebSocket client, Chat UI panel
+WebSocket server, new DB tables for chat
+v2.0
+"Kones" Rewards
+UI for wallet/balance display
+DB ledger table, transaction logic
+v2.0
+Upvote System
+UI buttons next to content
+DB table to track interactions
+v2.0
+"Koralcity"
+R&D for 3D rendering
+Standardized data export API, geo-data logic
+v3.0+
+
+
