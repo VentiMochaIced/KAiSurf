@@ -1,0 +1,40 @@
+KaiSurf Module Addon Plan: v1.2 "Proof-of-Engagement" Test
+1. Executive Summary & Vision
+This document outlines the requirements for KaiSurf v1.2, an iterative update focused on a single goal: implementing a test version of the "Kones" rewards system.
+This module addon acts as a crucial bridge between the Cloud Foundation (v1.1) and the full Collaboration & Monetization phase (v2.0). It introduces a simplified "Proof-of-Engagement" loop where user upvotes on shared content directly equate to "Kones." This allows the development team to test the core incentive mechanism, user interface, and backend logic without the immediate overhead of blockchain implementation.
+2. Core Concept: Vote = Kone
+The primary mechanic for this test version is a direct, one-to-one relationship between user actions and rewards, designed to be simple and intuitive.
+Upvote = 1 Kone: Every time a logged-in user upvotes a piece of KinetiKontent within a shared environment, their account is credited with one "Kone."
+"Votes" as the UI: The Koralai browser UI will display the term "Votes" to the user (e.g., "This content has 50 Votes"). This is a user-friendly abstraction. On the backend, these are tracked as "Kones" in the user's wallet.
+No Down-voting (Standard Users): To mitigate negative interactions during the test phase, the ability to down-vote is disabled for standard members. This feature will be reserved for a verified, higher membership level in a future release.
+3. The "Konnektor" Role
+This version introduces the official designation for highly engaged users who provide value to the network.
+Definition: A "Konnektor" is a user who actively runs a node by keeping their Karry Konnekt device (or, in this test version, their Koralai browser session) online and committed to the network.
+Incentive: While all users can earn Kones by voting, "Konnektors" will be eligible for future reward multipliers and increased network privileges, reinforcing the value of their contribution.
+4. Module Requirements for Version 1.2
+This addon requires coordinated updates to both the frontend browser and the backend server.
+Aspect
+Frontend (Koralai Browser) Requirements
+Backend (KAiSurf Server) Requirements
+User Interface (UI)
+1. "Votes" Addon: Create a new UI element within the main nav/toolbar that displays the user's total "Votes" (Kones balance).
+2. Upvote Button: Add a clickable upvote button next to each piece of shared content within an environment.
+3. Locale Toggle: Implement a visual indicator to show when a user is in a "Kone-enabled" network locale or environment.
+N/A
+Core Logic
+1. API Integration: When the upvote button is clicked, send a secure API call (POST /content/{id}/vote) to the backend.
+2. Real-time Update: On successful response from the API, the user's "Votes" total in the UI should update in real-time.
+1. New API Endpoint: Create the POST /content/{id}/vote endpoint. It must verify user authentication and content validity.
+2. Transaction Logic: On a valid request, increment the target content's vote count and increment the voting user's kones_balance in the database.
+3. Wallet Table: Implement the basic user_wallet or ledger table in the MySQL database to store user_id and kones_balance.
+Security
+Implement a client-side cooldown or debounce on the upvote button to prevent spamming the API.
+1. Idempotency: Ensure the API prevents a single user from voting on the same piece of content multiple times.
+2. Rate Limiting: Implement server-side rate limiting on the vote endpoint to prevent abuse.
+
+5. Progression and Rationale
+This simplified "Proof-of-Engagement" module is a low-risk, high-reward development step. It allows the team to:
+Validate the Core Loop: Confirm that a rewards system successfully increases user interaction and content sharing.
+Gather User Feedback: Collect data on how users interact with the voting and rewards system before developing the more complex crypto layer.
+Maintain Momentum: Deliver a tangible, engaging new feature to the user base while the long-term "Karry Konnekt" hardware and "Koralcity" metaverse concepts are in R&D.
+Successfully implementing this test version will provide the essential data and user validation needed to proceed confidently with the full vision outlined in the roadmap_v2_konnekt_conceptual_overview.md.
