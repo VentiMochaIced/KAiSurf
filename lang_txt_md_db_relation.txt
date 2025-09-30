@@ -53,3 +53,72 @@ The "fix" for a discrepancy is a human process: the development team must update
 | **Used By** | Developers, project managers, architects.                      | `pip` (Python's package installer), deployment servers.    |
 | **Role in Automation** | **None.** It is not read by any automated process.               | **Critical.** The automation fails if this is missing or wrong. |
 | **File Range Status** | Exists throughout the project's lifecycle as documentation.    | Essential for setting up any new development or production environment. |
+
+
+
+Cont///
+
+
+
+Managing updates to planning documents (`.md`) and dependency files (`.txt`) alongside the database and application code is a critical workflow.
+
+Here’s how this process typically progresses in a professional development environment, ensuring the DB and app evolve simultaneously without conflicts.
+
+### The Core Principle: A Disciplined Workflow
+
+The key is that the process is not random; it follows a specific, user-maintained order. A developer actively manages these files in distinct phases for each new feature or change.
+
+Think of it this way:
+
+  * **`requirements.md` (The Blueprint):** You update the blueprint *before* you start building.
+  * **`kaisurf_test.py` (The Building):** You write the code to match the new blueprint.
+  * **`requirements.txt` (The Toolkit):** You update your list of tools only when the new building plan requires a new tool.
+  * **Database (The Structure):** You apply the changes to the actual structure *after* the code is ready.
+
+### The Typical Progression for a Feature Update
+
+Let's use a practical example. **Goal: Add a `display_name` to the user's profile.**
+
+**Phase 1: Update the Plan (User maintains `requirements.md`)**
+
+1.  **Action:** The developer opens the project's planning document, which we're calling `requirements.md`.
+2.  **Task:** They find the section defining the `UserProfile` table and add a new line to the documentation:
+      * `display_name | STRING(100) | User's public-facing name, can be changed.`
+3.  **Status:** The **plan is now ahead of the code**. The `.md` file reflects the desired future state. This step is committed to version control (e.g., Git) with a message like "docs: Plan UserProfile display\_name field".
+
+**Phase 2: Update the Application (User maintains `kaisurf_test.py`)**
+
+1.  **Action:** The developer opens `kaisurf_test.py`.
+2.  **Task:** They find the `UserProfile` class and add the new column to match the plan:
+    ```python
+    class UserProfile(db.Model):
+        # ... existing columns
+        display_name = db.Column(db.String(100))
+    ```
+3.  They would also update the `/user/profile` endpoint to include this new field in the JSON response.
+4.  **Status:** The **code now matches the plan**. The application logic is ready for the new database structure. This is committed with a message like "feat: Add display\_name to UserProfile model and API".
+
+**Phase 3: Update Dependencies (User maintains `requirements.txt` - *If Needed*)**
+
+1.  **Action:** The developer assesses if the new feature required any new Python libraries.
+2.  **Task (for this example):** Adding a simple string column requires **no new libraries**. Therefore, `requirements.txt` **is not touched**.
+3.  **Task (Alternate example):** If the feature was "generate avatar images," they might `pip install Pillow`. After installation, they would run `pip freeze > requirements.txt` to update the file with the new dependency.
+4.  **Status:** The project's toolkit is now in sync with the code's needs.
+
+**Phase 4: Update the Database (The "Simultaneous" Sync)**
+
+This is the most critical step. The code has changed, and now the live database (on Supabase or locally) must be updated to match.
+
+1.  **Action (Development):** In a simple local test environment, a developer might just delete the `kaisurf_test_rl101.db` file and restart the app. `db.create_all()` will run and create a fresh database with the new `display_name` column. **This is fast for testing but destroys data.**
+
+2.  **Action (Production/Supabase):** You **never** delete a production database. Instead, you perform a **database migration**.
+
+      * A tool like **Alembic** (which integrates with Flask-SQLAlchemy) is used.
+      * The developer runs a command like `alembic revision --autogenerate -m "Add display_name to UserProfile"`.
+      * Alembic compares the models in `kaisurf_test.py` with the current state of the Supabase database.
+      * It automatically generates a small script that contains the SQL command: `ALTER TABLE user_profile ADD COLUMN display_name VARCHAR(100);`
+      * The developer then runs `alembic upgrade head` to execute this script against the live Supabase database, altering the table **without losing any existing user data.**
+
+This entire, user-maintained progression ensures that the plan, the code, the dependencies, and the live database all move forward in lockstep.
+
+
