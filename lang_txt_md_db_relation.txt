@@ -1,0 +1,55 @@
+That's a very sharp question that gets to the heart of the development workflow. There's a significant difference between `requirements.md` and `requirements.txt`, and understanding their roles is key to avoiding discrepancies when deploying to a platform like Supabase.
+
+They are **not the same** and are used at different stages of the development lifecycle. Here is the natural path and file status for DB automation.
+
+### The Analogy: Blueprint vs. Toolkit
+
+* **`requirements.md` (with table data) is the ARCHITECT'S BLUEPRINT.** It's a human-readable planning document. It describes *what* you are going to build.
+* **`requirements.txt` is the TOOLKIT.** It's a machine-readable dependency list. It lists the *tools* (software libraries) you need to do the building.
+
+### The Natural Path & Discrepancy Order
+
+The process is sequential. The blueprint is created before the tools are used. A discrepancy arises when the code doesn't match the blueprint, and the automation will always follow the code.
+
+Here is the correct operational order:
+
+1.  **`requirements.md` (Planning Phase):**
+    * **Purpose:** To define the database schema and business logic before writing code.
+    * **Content:** Markdown tables, descriptions of fields, explanations of relationships (e.g., "The `KonesLedger` table must have a `user_id` that links to the `User` table.").
+    * **Status:** This is a living document for the development team. It is the "source of truth" for the plan.
+
+2.  **`kaisurf_test.py` (Implementation Phase):**
+    * **Purpose:** To translate the blueprint (`requirements.md`) into functional Python code.
+    * **Content:** The SQLAlchemy `db.Model` classes in your script are the direct implementation of the tables defined in the `.md` file.
+    * **Status:** This file is the **source of truth for the automation**. The `db.create_all()` command only knows what's in these Python classes.
+
+3.  **`requirements.txt` (Preparation Phase):**
+    * **Purpose:** To tell the hosting environment (like Heroku, Render, or a Docker container) which Python libraries are needed to run `kaisurf_test.py`.
+    * **Content:** A simple list of packages like `Flask`, `Flask-SQLAlchemy`, and critically, `psycopg2-binary` (the tool for talking to Supabase's PostgreSQL).
+    * **Status:** This is a static dependency file required for deployment.
+
+4.  **Supabase Deployment (Execution Phase):**
+    * The deployment server reads `requirements.txt` and installs the necessary tools.
+    * It then runs `kaisurf_test.py`.
+    * The Python script, using its tools, connects to Supabase and executes `db.create_all()`, building the tables based on the Python models.
+
+
+
+### Resolving the "Supabase Discrepancy Order"
+
+**The code always wins.** If your `requirements.md` says a table should have 5 columns, but the corresponding `db.Model` class in `kaisurf_test.py` only defines 4 columns, **only 4 columns will be created in your Supabase database.**
+
+* **Natural Path:** `requirements.md` -> `kaisurf_test.py` -> `db.create_all()` -> Supabase Schema.
+* **Discrepancy Path:** If `kaisurf_test.py` does not match `requirements.md`, the resulting Supabase Schema will also not match `requirements.md`.
+
+The "fix" for a discrepancy is a human process: the development team must update either the plan (`.md`) or the code (`.py`) to bring them back into alignment.
+
+### Comparison Table
+
+| Aspect             | `requirements.md` (Blueprint)                                  | `requirements.txt` (Toolkit)                               |
+| ------------------ | -------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Purpose** | Plan and document the database schema for human review.        | List Python package dependencies for machine installation. |
+| **Content** | Markdown text, tables, descriptions, business rules.           | A list of package names (e.g., `Flask==2.0.1`).            |
+| **Used By** | Developers, project managers, architects.                      | `pip` (Python's package installer), deployment servers.    |
+| **Role in Automation** | **None.** It is not read by any automated process.               | **Critical.** The automation fails if this is missing or wrong. |
+| **File Range Status** | Exists throughout the project's lifecycle as documentation.    | Essential for setting up any new development or production environment. |
