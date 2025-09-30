@@ -121,4 +121,113 @@ This is the most critical step. The code has changed, and now the live database 
 
 This entire, user-maintained progression ensures that the plan, the code, the dependencies, and the live database all move forward in lockstep.
 
+Cont///
 
+Excellent question. You are looking beyond the application code itself and into the complete ecosystem of files that a development team maintains to ensure productivity, consistency, and automation. This is a mature and crucial perspective for scaling a project.
+
+Based on the `kaisurf_test.py` (RL v1.0.1) architecture and standard professional workflows, here are the other critical user-maintained files that are indicated in this development process, especially for managing database reference data and automation.
+
+### 1\. Environment & Configuration Files (`.env`)
+
+These files manage environment-specific variables, keeping secrets out of the application code. This is the most immediate and important file to add to the workflow.
+
+  * **Purpose:** To provide configuration (like database URLs and secret keys) to the application for a specific environment (local development, testing, production).
+  * **File Example (`.env`):**
+    ```
+    # For local SQLite testing
+    # DATABASE_URL="sqlite:///kaisurf_test_rl101.db"
+
+    # For connecting to a live Supabase instance
+    DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@[YOUR-HOST].supabase.co:5432/postgres"
+
+    # A strong, randomly generated secret for session security
+    SECRET_KEY="a_much_stronger_random_secret_than_this"
+
+    # Feature Flags
+    KONES_REWARDS_ENABLED="True"
+    ```
+  * **Why it's User-Maintained:** Each developer maintains their own local `.env` file (which is **never** committed to version control). The production environment variables are maintained directly in the Supabase or hosting provider's dashboard. This separation of config from code is a fundamental security practice.
+
+### 2\. Database Migration & Seeding Files
+
+These files manage the evolution of your database schema and populate it with initial, non-user data.
+
+  * **Purpose (Migrations - Alembic):** To apply incremental changes to the live database schema without losing data. You need this to add, remove, or alter columns and tables after your initial deployment.
+
+  * **Files:**
+
+      * `alembic.ini`: The configuration file for the migration tool.
+      * `versions/`: A directory containing auto-generated migration scripts (e.g., `versions/1a2b3c_add_display_name.py`).
+
+  * **Why it's User-Maintained:** The developer initiates the auto-generation of these scripts and may sometimes need to edit them for complex data migrations. These scripts are critical and are always committed to version control.
+
+  * **Purpose (Seeding):** To populate the database with essential reference data required for the app to function.
+
+  * **File Example (`seed_database.py`):**
+
+    ```python
+    # A standalone script to seed initial data
+    from kaisurf_test import app, db, RewardRule
+
+    def seed_data():
+        with app.app_context():
+            print("Seeding reward rules...")
+            # Check if rules already exist
+            if RewardRule.query.count() == 0:
+                rules = [
+                    RewardRule(rule_name='DAILY_LOGIN', kone_amount=5, description='Reward for logging in each day.'),
+                    RewardRule(rule_name='CREATE_KONTENT', kone_amount=10, description='For creating a new piece of Kinetikontent.'),
+                    RewardRule(rule_name='BETA_TESTER_BONUS', kone_amount=100, description='One-time reward for beta program participants.', is_active=False)
+                ]
+                db.session.bulk_save_objects(rules)
+                db.session.commit()
+                print("Default reward rules seeded.")
+            else:
+                print("Reward rules already exist.")
+
+    if __name__ == '__main__':
+        seed_data()
+    ```
+
+  * **Why it's User-Maintained:** The dev team defines and maintains this "factory default" data. It's crucial for setting up new developer environments automatically and ensuring features like the "Kones" system have their necessary rules in place from the start.
+
+### 3\. API Specification Files (`openapi.yaml`)
+
+This file acts as a contract between your backend and any front-end client, ensuring they speak the same language.
+
+  * **Purpose:** To formally define every API endpoint, its expected inputs (parameters, request body), and its possible outputs (responses, status codes).
+  * **File Example (`openapi.yaml` snippet):**
+    ```yaml
+    openapi: 3.0.0
+    info:
+      title: KAiSurf API
+      version: 1.0.1
+    paths:
+      /login:
+        post:
+          summary: User Login
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    roaming_id:
+                      type: string
+                    username:
+                      type: string
+          responses:
+            '200':
+              description: Access Granted
+    ```
+  * **Why it's User-Maintained:** This is the blueprint for your API. It's maintained by the backend team and consumed by the front-end team. It enables parallel development and can be used to auto-generate documentation, client libraries, and API tests.
+
+### Summary Table
+
+| File Type                               | Purpose                                                     | Automation Scenario                                                                    | Maintained By |
+| --------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------- |
+| `.env`                                  | Store environment-specific configuration and secrets.       | Provides `DATABASE_URL` to the app during startup.                                     | Developer     |
+| Alembic Migration Scripts (`versions/`) | Safely evolve the production database schema over time.     | A deployment script runs `alembic upgrade head` to apply new changes.                  | Developer     |
+| Seed Scripts (`seed_database.py`)       | Populate tables with essential, non-user reference data.    | A setup script runs `python seed_database.py` after the database schema is created.    | Developer     |
+| API Specification (`openapi.yaml`)      | Define the API contract for front-end and back-end teams. | Tools can generate interactive API documentation and run automated contract tests. | Developer     |
