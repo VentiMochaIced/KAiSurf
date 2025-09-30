@@ -92,7 +92,7 @@ from functools import wraps
 app = Flask(__name__)
 
 # --- Configuration ---
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///kaisurf_test_rl101.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('postgresql://postgres:[Potatosoup2025*]@db.odibggizcubpcuwmgnll.supabase.co:5432/postgres', 'sqlite:///kaisurf_test_rl101.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default-super-secret-key-for-testing')
 
