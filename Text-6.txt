@@ -1,0 +1,10 @@
+/KAiSurf_Backend/
+├── .env                  <-- All your secrets go here
+├── .gitignore            <-- Excludes .env
+├── app.py                <-- Main Flask app initialization
+├── models.py             <-- All SQLAlchemy models
+├── requirements.txt      <-- pip dependencies list
+└── routes/               <-- API Endpoints
+    ├── auth.py
+    ├── content.py
+    └── kones.py

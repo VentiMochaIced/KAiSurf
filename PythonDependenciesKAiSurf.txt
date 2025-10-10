@@ -1,0 +1,10 @@
+﻿Python Dependencies for KAiSurf Backend (RL v1.0)
+Flask and Core Libraries
+Flask
+Flask-SQLAlchemy
+python-dotenv
+Werkzeug
+PostgreSQL Driver (Required for Supabase connection)
+psycopg2-binary
+Security and Utilities
+PyJWT
