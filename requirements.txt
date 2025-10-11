@@ -1,0 +1,20 @@
+Core Framework and Extensions
+
+Flask>=2.3.0
+Flask-SQLAlchemy>=3.1.0
+Database Driver for PostgreSQL (required for Supabase)
+
+psycopg2-binary>=2.9.0
+Configuration Management
+
+python-dotenv>=1.0.0
+JSON Web Token (JWT) Handling
+
+PyJWT>=2.8.0
+Testing and Utilities (Required for local development and CI)
+
+pytest>=8.0.0
+flake8>=7.0.0
+Include Werkzeug for essential utilities, often a Flask dependency
+
+Werkzeug>=3.0.0
